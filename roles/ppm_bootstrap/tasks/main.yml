@@ -1,0 +1,68 @@
+---
+- name: Wait for Package Manager to be ready
+  ansible.builtin.wait_for:
+    port: "{{ ppm_bootstrap_wait_port | int }}"
+    timeout: "{{ ppm_bootstrap_wait_timeout | int }}"
+
+- name: Create CRAN repository
+  when: ppm_bootstrap_cran | bool
+  become: true
+  block:
+    - name: Check if CRAN repo exists
+      ansible.builtin.command:
+        cmd: "{{ ppm_bootstrap_cli }} list --type=r"
+      register: _ppm_r_repos
+      changed_when: false
+
+    - name: Create CRAN repo
+      when: "'cran' not in _ppm_r_repos.stdout | lower"
+      ansible.builtin.command:
+        cmd: "{{ ppm_bootstrap_cli }} create repo --name=cran --type=r"
+      register: _ppm_create_cran
+      changed_when: _ppm_create_cran.rc == 0
+
+    - name: Subscribe CRAN repo to cran source
+      when: "'cran' not in _ppm_r_repos.stdout | lower"
+      ansible.builtin.command:
+        cmd: "{{ ppm_bootstrap_cli }} subscribe --repo=cran --source=cran"
+      changed_when: true
+
+- name: Create PyPI repository
+  when: ppm_bootstrap_pypi | bool
+  become: true
+  block:
+    - name: Check if PyPI repo exists
+      ansible.builtin.command:
+        cmd: "{{ ppm_bootstrap_cli }} list --type=python"
+      register: _ppm_python_repos
+      changed_when: false
+
+    - name: Create PyPI repo
+      when: "'pypi' not in _ppm_python_repos.stdout | lower"
+      ansible.builtin.command:
+        cmd: "{{ ppm_bootstrap_cli }} create repo --name=pypi --type=python"
+      register: _ppm_create_pypi
+      changed_when: _ppm_create_pypi.rc == 0
+
+    - name: Subscribe PyPI repo to pypi source
+      when: "'pypi' not in _ppm_python_repos.stdout | lower"
+      ansible.builtin.command:
+        cmd: "{{ ppm_bootstrap_cli }} subscribe --repo=pypi --source=pypi"
+      changed_when: true
+
+- name: Create Bioconductor repository
+  when: ppm_bootstrap_bioconductor | bool
+  become: true
+  block:
+    - name: Check if Bioconductor repo exists
+      ansible.builtin.command:
+        cmd: "{{ ppm_bootstrap_cli }} list --type=bioconductor"
+      register: _ppm_bioc_repos
+      changed_when: false
+
+    - name: Create Bioconductor repo
+      when: "'bioconductor' not in _ppm_bioc_repos.stdout | lower"
+      ansible.builtin.command:
+        cmd: "{{ ppm_bootstrap_cli }} create repo --name=bioconductor --type=bioconductor"
+      register: _ppm_create_bioc
+      changed_when: _ppm_create_bioc.rc == 0

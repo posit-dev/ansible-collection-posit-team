@@ -14,6 +14,13 @@ package_manager_cran_enabled: true
 package_manager_pypi_enabled: true
 package_manager_bioconductor_enabled: false
 
+# --- Prerequisites ---
+# PPM doesn't need R, Python, or Quarto installed on the host.
+# Override the shared versions to skip unnecessary installs.
+r_versions: []
+python_versions: []
+quarto_versions: []
+
 # --- Uncomment to enable features ---
 # package_manager_https_enabled: true
 # package_manager_https_cert: /etc/ssl/certs/ppm.crt

@@ -1,0 +1,20 @@
+---
+# --- PPM Repository Bootstrap ---
+# Creates initial repositories in Package Manager after installation.
+# Runs rspm CLI commands to create and subscribe repos.
+
+# Create a CRAN repository.
+ppm_bootstrap_cran: true
+
+# Create a PyPI repository.
+ppm_bootstrap_pypi: true
+
+# Create a Bioconductor repository.
+ppm_bootstrap_bioconductor: false
+
+# Path to the rspm CLI binary.
+ppm_bootstrap_cli: "/opt/rstudio-pm/bin/rspm"
+
+# Wait for PPM to be ready before creating repos.
+ppm_bootstrap_wait_port: 4242
+ppm_bootstrap_wait_timeout: 60

@@ -6,12 +6,20 @@
 workbench_license_file: "{{ posit_license_dir }}/workbench.lic"
 
 # --- PPM Integration (auto-configured when PPM is deployed) ---
-# Workbench user sessions use PPM for CRAN packages. Set automatically
-# from posit_package_manager_url in all.yml.
+# Workbench user sessions use PPM for CRAN and PyPI packages.
+# Set automatically from posit_package_manager_url in all.yml.
 workbench_r_repos: "{{
   [
     {'name': 'CRAN', 'url': posit_package_manager_url + '/cran/latest'}
-  ] if posit_deploy_package_manager else []
+  ] if (posit_deploy_package_manager and posit_package_manager_url | length > 0) else []
+}}"
+
+# pip/uv index URL for Python package installs in sessions.
+# Flows into rsession.conf via custom config.
+workbench_custom_rsession_config: "{{
+  {
+    'python-default-index-url': posit_package_manager_url + '/pypi/latest/simple'
+  } if (posit_deploy_package_manager and posit_package_manager_url | length > 0) else {}
 }}"
 
 # --- Session Types ---

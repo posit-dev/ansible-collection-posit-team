@@ -3,21 +3,21 @@
 # Posit Team Deployment Playbook
 # =============================================================================
 #
-# Deploys Posit Package Manager, Connect, and Workbench in the correct order.
+# Deploys Posit Package Manager, Connect, and Workbench in dependency order.
 # Each product can be toggled on/off via posit_deploy_* variables in
 # group_vars/all.yml. When PPM is deployed, Connect and Workbench are
-# automatically configured to use it as their package repository.
+# automatically configured to use it for R and Python packages.
 #
 # Usage:
 #   ansible-playbook posit-team.yml -i inventory.ini
 #
 # Prerequisites:
-#   ansible-galaxy collection install -r requirements.yml
+#   ansible-galaxy install -r requirements.yml
 
 # -----------------------------------------------------------------------------
-# 1. Common: Install prerequisites on all product hosts
+# 1. Common: System prep and Cloudsmith repo on all product hosts
 # -----------------------------------------------------------------------------
-- name: Install prerequisites on all Posit servers
+- name: Prepare all Posit servers
   hosts: posit_servers
   become: true
   gather_facts: true
@@ -35,14 +35,17 @@
         name: posit.tools.cloudsmith
 
     - name: Install R versions
+      when: r_versions | default([]) | length > 0
       ansible.builtin.include_role:
         name: posit.tools.r
 
     - name: Install Python versions
+      when: python_versions | default([]) | length > 0
       ansible.builtin.include_role:
         name: posit.tools.python
 
     - name: Install Quarto
+      when: quarto_versions | default([]) | length > 0
       ansible.builtin.include_role:
         name: posit.tools.quarto
 
@@ -57,12 +60,23 @@
   collections:
     - posit.team
 
-  roles:
-    - role: ansible-role-package-manager
+  tasks:
+    - name: Install and configure Package Manager
       when: posit_deploy_package_manager | default(false) | bool
+      ansible.builtin.include_role:
+        name: ansible-role-package-manager
+
+    - name: Bootstrap PPM repositories
+      when: posit_deploy_package_manager | default(false) | bool
+      ansible.builtin.include_role:
+        name: posit.team.ppm_bootstrap
+      vars:
+        ppm_bootstrap_cran: "{{ package_manager_cran_enabled | default(true) }}"
+        ppm_bootstrap_pypi: "{{ package_manager_pypi_enabled | default(true) }}"
+        ppm_bootstrap_bioconductor: "{{ package_manager_bioconductor_enabled | default(false) }}"
 
 # -----------------------------------------------------------------------------
-# 3. Connect (after PPM — uses PPM for R package repos)
+# 3. Connect (after PPM — uses PPM for R/Python package repos)
 # -----------------------------------------------------------------------------
 - name: Deploy Posit Connect
   hosts: connect
@@ -72,12 +86,14 @@
   collections:
     - posit.team
 
-  roles:
-    - role: ansible-role-connect
+  tasks:
+    - name: Install and configure Connect
       when: posit_deploy_connect | default(false) | bool
+      ansible.builtin.include_role:
+        name: ansible-role-connect
 
 # -----------------------------------------------------------------------------
-# 4. Workbench (last — configures CRAN repos pointing at PPM)
+# 4. Workbench (last — configures CRAN/PyPI repos pointing at PPM)
 # -----------------------------------------------------------------------------
 - name: Deploy Posit Workbench
   hosts: workbench
@@ -87,6 +103,66 @@
   collections:
     - posit.team
 
-  roles:
-    - role: ansible-role-workbench
+  tasks:
+    - name: Install and configure Workbench
       when: posit_deploy_workbench | default(false) | bool
+      ansible.builtin.include_role:
+        name: ansible-role-workbench
+
+# -----------------------------------------------------------------------------
+# 5. Smoke tests — verify all deployed products are responding
+# -----------------------------------------------------------------------------
+- name: Verify Posit Team deployment
+  hosts: posit_servers
+  become: false
+  gather_facts: false
+
+  tasks:
+    - name: Verify Package Manager is responding
+      when:
+        - posit_deploy_package_manager | default(false) | bool
+        - inventory_hostname in groups.get('package_manager', [])
+      ansible.builtin.uri:
+        url: "http://localhost:{{ package_manager_http_port | default(4242) }}/__ping__"
+        return_content: false
+        status_code: 200
+      register: _ppm_ping
+      retries: 3
+      delay: 5
+      until: _ppm_ping is success
+
+    - name: Verify Connect is responding
+      when:
+        - posit_deploy_connect | default(false) | bool
+        - inventory_hostname in groups.get('connect', [])
+      ansible.builtin.uri:
+        url: "http://localhost:{{ connect_http_port | default(3939) }}/__ping__"
+        return_content: false
+        status_code: 200
+      register: _connect_ping
+      retries: 3
+      delay: 5
+      until: _connect_ping is success
+
+    - name: Verify Workbench is responding
+      when:
+        - posit_deploy_workbench | default(false) | bool
+        - inventory_hostname in groups.get('workbench', [])
+      ansible.builtin.uri:
+        url: "http://localhost:{{ workbench_www_port | default(8787) }}"
+        return_content: false
+        status_code:
+          - 200
+          - 302
+      register: _workbench_ping
+      retries: 3
+      delay: 5
+      until: _workbench_ping is success
+
+    - name: Deployment summary
+      when: inventory_hostname == ansible_play_hosts[0]
+      ansible.builtin.debug:
+        msg:
+          package_manager: "{{ '✓ running' if (posit_deploy_package_manager | default(false)) else 'skipped' }}"
+          connect: "{{ '✓ running' if (posit_deploy_connect | default(false)) else 'skipped' }}"
+          workbench: "{{ '✓ running' if (posit_deploy_workbench | default(false)) else 'skipped' }}"

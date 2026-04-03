@@ -16,3 +16,7 @@ install_version: ""
 
 # Installation source: "cloudsmith" or "cdn"
 install_source: "cloudsmith"
+
+# Hold/lock the package version after install to prevent unintended upgrades.
+# Applies to Cloudsmith installs only (CDN installs are pinned by nature).
+install_pin_version: true

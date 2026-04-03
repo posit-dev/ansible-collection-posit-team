@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  role_name: ppm_bootstrap
+  author: "Posit Software, PBC"
+  namespace: posit
+  description: "Create initial CRAN, PyPI, and Bioconductor repositories in Package Manager"
+  license: MIT
+  min_ansible_version: "2.15"
+
+dependencies: []

@@ -10,7 +10,7 @@ connect_license_file: "{{ posit_license_dir }}/connect.lic"
 connect_server_address: "http://{{ ansible_host }}:3939"
 
 # --- PPM Integration (auto-configured when PPM is deployed) ---
-# Connect uses PPM as its R package repository. This is set automatically
+# Connect uses PPM for R and Python package repositories. Set automatically
 # from posit_package_manager_url in all.yml when posit_deploy_package_manager
 # is true. Override here to point at a different PPM instance.
 connect_custom_config: "{{
@@ -20,8 +20,11 @@ connect_custom_config: "{{
     },
     'RPackageRepository \"PPM\"': {
       'URL': posit_package_manager_url + '/all/latest'
+    },
+    'Python': {
+      'PackageManager': posit_package_manager_url + '/pypi/latest/simple'
     }
-  } if posit_deploy_package_manager else {}
+  } if (posit_deploy_package_manager and posit_package_manager_url | length > 0) else {}
 }}"
 
 # --- Uncomment to enable features ---

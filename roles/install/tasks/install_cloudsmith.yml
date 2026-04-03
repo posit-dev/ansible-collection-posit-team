@@ -57,3 +57,37 @@
   retries: 3
   delay: 10
   until: _install_zypper_result is success
+
+# --- Version Pinning ---
+# Hold the package to prevent unintended upgrades via apt/dnf.
+
+- name: Pin package version (Debian)
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+    - install_pin_version | bool
+  become: true
+  ansible.builtin.dpkg_selections:
+    name: "{{ install_package_name }}"
+    selection: hold
+
+- name: Pin package version (RedHat)
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - install_pin_version | bool
+  become: true
+  ansible.builtin.command:
+    cmd: "dnf versionlock add {{ install_package_name }}"
+  register: _dnf_versionlock
+  changed_when: "'Added versionlock' in _dnf_versionlock.stdout"
+  failed_when: false
+
+- name: Pin package version (Suse)
+  when:
+    - ansible_facts['os_family'] == 'Suse'
+    - install_pin_version | bool
+  become: true
+  ansible.builtin.command:
+    cmd: "zypper addlock {{ install_package_name }}"
+  register: _zypper_lock
+  changed_when: "'already exists' not in _zypper_lock.stdout"
+  failed_when: false

@@ -16,8 +16,8 @@ posit_deploy_connect: true
 posit_deploy_workbench: true
 
 # --- R and Python Versions ---------------------------------------------------
-# Installed on all product hosts via posit.tools. Shared here so every
-# product sees the same runtimes.
+# Shared defaults. Override per-product group in group_vars/<product>.yml
+# if a product needs different versions.
 
 r_versions:
   - "4.4.3"
@@ -32,9 +32,18 @@ quarto_versions:
 
 # --- Package Manager Integration ---------------------------------------------
 # When PPM is deployed, Connect and Workbench are automatically configured
-# to use it. Set the URL admins/users will reach PPM at.
+# to use it for R and Python packages. Set the URL that users/products
+# will reach PPM at.
+#
+# This is safe when posit_deploy_package_manager is false — downstream
+# references check the toggle before using this value.
 
-posit_package_manager_url: "http://{{ hostvars[groups['package_manager'][0]]['ansible_host'] | default('localhost') }}:4242"
+posit_package_manager_url: >-
+  {%- if posit_deploy_package_manager and groups.get('package_manager', []) | length > 0 -%}
+    http://{{ hostvars[groups['package_manager'][0]]['ansible_host'] | default('localhost') }}:4242
+  {%- else -%}
+    {{ '' }}
+  {%- endif -%}
 
 # --- Shared Paths ------------------------------------------------------------
 # License files on the Ansible controller. Override per-product in group_vars.

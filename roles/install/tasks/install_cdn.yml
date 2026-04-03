@@ -19,7 +19,6 @@
   posit.tools.download_from_posit_cdn:
     product: "{{ install_cdn_product }}"
     version: "{{ install_version }}"
-    edition: "pro"
     dest: "/tmp"
   register: _cdn_download
 

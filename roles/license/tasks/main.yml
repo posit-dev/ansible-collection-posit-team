@@ -2,6 +2,12 @@
 - name: Activate license from file
   when: license_file | length > 0
   block:
+    - name: Validate license file destination is set
+      ansible.builtin.assert:
+        that:
+          - license_file_dest | length > 0
+        fail_msg: "license_file_dest must be set when license_file is provided"
+
     - name: Copy license file to target
       ansible.builtin.copy:
         src: "{{ license_file }}"
@@ -26,8 +32,9 @@
       ansible.builtin.command:
         cmd: "{{ license_manager_path }} activate {{ license_key }}"
       become: true
+      no_log: true
       register: _license_activate
-      changed_when: "'Successfully activated' in _license_activate.stdout"
+      changed_when: _license_activate.rc == 0
 
 - name: Skip license activation
   when:

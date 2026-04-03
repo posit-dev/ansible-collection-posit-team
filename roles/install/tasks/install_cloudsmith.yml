@@ -6,47 +6,16 @@
   ansible.builtin.include_role:
     name: posit.tools.cloudsmith
 
-- name: Build versioned package spec (Debian)
-  when:
-    - ansible_facts['os_family'] == 'Debian'
-    - install_version | length > 0
+- name: Build package spec
   ansible.builtin.set_fact:
-    _install_package_spec: "{{ install_package_name }}={{ install_version }}*"
-
-- name: Build unversioned package spec (Debian)
-  when:
-    - ansible_facts['os_family'] == 'Debian'
-    - install_version | length == 0
-  ansible.builtin.set_fact:
-    _install_package_spec: "{{ install_package_name }}"
-
-- name: Build versioned package spec (RedHat)
-  when:
-    - ansible_facts['os_family'] == 'RedHat'
-    - install_version | length > 0
-  ansible.builtin.set_fact:
-    _install_package_spec: "{{ install_package_name }}-{{ install_version }}"
-
-- name: Build unversioned package spec (RedHat)
-  when:
-    - ansible_facts['os_family'] == 'RedHat'
-    - install_version | length == 0
-  ansible.builtin.set_fact:
-    _install_package_spec: "{{ install_package_name }}"
-
-- name: Build versioned package spec (Suse)
-  when:
-    - ansible_facts['os_family'] == 'Suse'
-    - install_version | length > 0
-  ansible.builtin.set_fact:
-    _install_package_spec: "{{ install_package_name }}={{ install_version }}"
-
-- name: Build unversioned package spec (Suse)
-  when:
-    - ansible_facts['os_family'] == 'Suse'
-    - install_version | length == 0
-  ansible.builtin.set_fact:
-    _install_package_spec: "{{ install_package_name }}"
+    _install_package_spec: >-
+      {%- if install_version | length == 0 -%}
+        {{ install_package_name }}
+      {%- elif ansible_facts['os_family'] == 'RedHat' -%}
+        {{ install_package_name }}-{{ install_version }}
+      {%- else -%}
+        {{ install_package_name }}={{ install_version }}*
+      {%- endif -%}
 
 - name: Install package (Debian)
   when: ansible_facts['os_family'] == 'Debian'

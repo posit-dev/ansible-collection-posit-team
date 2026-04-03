@@ -1,5 +1,17 @@
 ---
+- name: Initialize runtime facts
+  ansible.builtin.set_fact:
+    discovered_r_executables: []
+    discovered_python_executables: []
+    discovered_quarto_executables: []
+
+- name: Check R directory exists
+  ansible.builtin.stat:
+    path: "{{ discover_r_dir }}"
+  register: _r_dir_stat
+
 - name: Find R installations
+  when: _r_dir_stat.stat.exists
   ansible.builtin.find:
     paths: "{{ discover_r_dir }}"
     patterns: "R"
@@ -7,13 +19,12 @@
     recurse: true
     depth: 3
   register: _r_find
-  failed_when: false
 
 - name: Build R executable list
+  when: _r_find.files is defined
   ansible.builtin.set_fact:
     discovered_r_executables: >-
       {{ _r_find.files
-         | default([])
          | map(attribute='path')
          | select('match', '.*/bin/R$')
          | sort
@@ -28,7 +39,13 @@
       No R installations found in {{ discover_r_dir }}.
       Install R first with the posit.tools.r role.
 
+- name: Check Python directory exists
+  ansible.builtin.stat:
+    path: "{{ discover_python_dir }}"
+  register: _python_dir_stat
+
 - name: Find Python installations
+  when: _python_dir_stat.stat.exists
   ansible.builtin.find:
     paths: "{{ discover_python_dir }}"
     patterns: "python*"
@@ -36,13 +53,12 @@
     recurse: true
     depth: 3
   register: _python_find
-  failed_when: false
 
 - name: Build Python executable list
+  when: _python_find.files is defined
   ansible.builtin.set_fact:
     discovered_python_executables: >-
       {{ _python_find.files
-         | default([])
          | map(attribute='path')
          | select('match', '.*/bin/python[0-9.]*$')
          | reject('match', '.*-config$')
@@ -58,7 +74,13 @@
       No Python installations found in {{ discover_python_dir }}.
       Install Python first with the posit.tools.python role.
 
+- name: Check Quarto directory exists
+  ansible.builtin.stat:
+    path: "{{ discover_quarto_dir }}"
+  register: _quarto_dir_stat
+
 - name: Find Quarto installations
+  when: _quarto_dir_stat.stat.exists
   ansible.builtin.find:
     paths: "{{ discover_quarto_dir }}"
     patterns: "quarto"
@@ -66,13 +88,12 @@
     recurse: true
     depth: 3
   register: _quarto_find
-  failed_when: false
 
 - name: Build Quarto executable list
+  when: _quarto_find.files is defined
   ansible.builtin.set_fact:
     discovered_quarto_executables: >-
       {{ _quarto_find.files
-         | default([])
          | map(attribute='path')
          | select('match', '.*/bin/quarto$')
          | sort
@@ -84,5 +105,4 @@
       r: "{{ discovered_r_executables }}"
       python: "{{ discovered_python_executables }}"
       quarto: "{{ discovered_quarto_executables }}"
-  tags:
-    - discover-runtimes-report
+    verbosity: 1

@@ -1,0 +1,46 @@
+---
+# =============================================================================
+# Posit Workbench — Group Variables
+# =============================================================================
+
+workbench_license_file: "{{ posit_license_dir }}/workbench.lic"
+
+# --- PPM Integration (auto-configured when PPM is deployed) ---
+# Workbench user sessions use PPM for CRAN packages. Set automatically
+# from posit_package_manager_url in all.yml.
+workbench_r_repos: "{{
+  [
+    {'name': 'CRAN', 'url': posit_package_manager_url + '/cran/latest'}
+  ] if posit_deploy_package_manager else []
+}}"
+
+# --- Session Types ---
+# Enable the Job Launcher for VS Code, Jupyter, and Positron sessions.
+# Uncomment the block below to enable multi-session support.
+
+# workbench_launcher_enabled: true
+# workbench_vscode_enabled: true
+# workbench_jupyter_labs_enabled: true
+# workbench_positron_enabled: true
+
+# --- Uncomment to enable features ---
+# workbench_ssl_enabled: true
+# workbench_ssl_cert: /etc/ssl/certs/workbench.crt
+# workbench_ssl_key: /etc/ssl/private/workbench.key
+
+# workbench_auth_openid: true
+# workbench_auth_openid_issuer: "https://idp.example.com"
+# workbench_auth_openid_client_id: "workbench-client-id"
+
+# workbench_db_provider: "postgresql"
+# workbench_db_host: "db.example.com"
+# workbench_db_name: "workbench"
+# workbench_db_username: "workbench"
+# workbench_db_password: "{{ vault_workbench_db_password }}"
+
+# workbench_admin_enabled: true
+# workbench_admin_group: "admins"
+
+# workbench_metrics_enabled: true
+
+# workbench_copilot_enabled: true

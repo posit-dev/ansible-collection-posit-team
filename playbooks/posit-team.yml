@@ -1,0 +1,92 @@
+---
+# =============================================================================
+# Posit Team Deployment Playbook
+# =============================================================================
+#
+# Deploys Posit Package Manager, Connect, and Workbench in the correct order.
+# Each product can be toggled on/off via posit_deploy_* variables in
+# group_vars/all.yml. When PPM is deployed, Connect and Workbench are
+# automatically configured to use it as their package repository.
+#
+# Usage:
+#   ansible-playbook posit-team.yml -i inventory.ini
+#
+# Prerequisites:
+#   ansible-galaxy collection install -r requirements.yml
+
+# -----------------------------------------------------------------------------
+# 1. Common: Install prerequisites on all product hosts
+# -----------------------------------------------------------------------------
+- name: Install prerequisites on all Posit servers
+  hosts: posit_servers
+  become: true
+  gather_facts: true
+
+  collections:
+    - posit.tools
+
+  tasks:
+    - name: Prepare system packages
+      ansible.builtin.include_role:
+        name: posit.tools.prepare
+
+    - name: Configure Posit package repository
+      ansible.builtin.include_role:
+        name: posit.tools.cloudsmith
+
+    - name: Install R versions
+      ansible.builtin.include_role:
+        name: posit.tools.r
+
+    - name: Install Python versions
+      ansible.builtin.include_role:
+        name: posit.tools.python
+
+    - name: Install Quarto
+      ansible.builtin.include_role:
+        name: posit.tools.quarto
+
+# -----------------------------------------------------------------------------
+# 2. Package Manager (first — other products depend on it)
+# -----------------------------------------------------------------------------
+- name: Deploy Posit Package Manager
+  hosts: package_manager
+  become: true
+  gather_facts: true
+
+  collections:
+    - posit.team
+
+  roles:
+    - role: ansible-role-package-manager
+      when: posit_deploy_package_manager | default(false) | bool
+
+# -----------------------------------------------------------------------------
+# 3. Connect (after PPM — uses PPM for R package repos)
+# -----------------------------------------------------------------------------
+- name: Deploy Posit Connect
+  hosts: connect
+  become: true
+  gather_facts: true
+
+  collections:
+    - posit.team
+
+  roles:
+    - role: ansible-role-connect
+      when: posit_deploy_connect | default(false) | bool
+
+# -----------------------------------------------------------------------------
+# 4. Workbench (last — configures CRAN repos pointing at PPM)
+# -----------------------------------------------------------------------------
+- name: Deploy Posit Workbench
+  hosts: workbench
+  become: true
+  gather_facts: true
+
+  collections:
+    - posit.team
+
+  roles:
+    - role: ansible-role-workbench
+      when: posit_deploy_workbench | default(false) | bool

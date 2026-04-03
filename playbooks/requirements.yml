@@ -1,0 +1,14 @@
+---
+collections:
+  - name: posit.team
+    version: ">=0.1.0"
+  - name: posit.tools
+    version: ">=0.2.0"
+
+roles:
+  - name: posit-dev.ansible-role-connect
+    src: https://github.com/posit-dev/ansible-role-connect
+  - name: posit-dev.ansible-role-workbench
+    src: https://github.com/posit-dev/ansible-role-workbench
+  - name: posit-dev.ansible-role-package-manager
+    src: https://github.com/posit-dev/ansible-role-package-manager

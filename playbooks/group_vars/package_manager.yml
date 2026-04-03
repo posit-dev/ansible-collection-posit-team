@@ -1,0 +1,25 @@
+---
+# =============================================================================
+# Posit Package Manager — Group Variables
+# =============================================================================
+
+package_manager_license_file: "{{ posit_license_dir }}/ppm.lic"
+
+# Server address visible to users and other products.
+# Override if behind a load balancer or reverse proxy.
+package_manager_server_address: "http://{{ ansible_host }}:4242"
+
+# --- Repositories ---
+package_manager_cran_enabled: true
+package_manager_pypi_enabled: true
+package_manager_bioconductor_enabled: false
+
+# --- Uncomment to enable features ---
+# package_manager_https_enabled: true
+# package_manager_https_cert: /etc/ssl/certs/ppm.crt
+# package_manager_https_key: /etc/ssl/private/ppm.key
+
+# package_manager_db_provider: "postgresql"
+# package_manager_db_postgres_url: "postgres://ppm:secret@db.example.com:5432/ppm"
+
+# package_manager_oidc_issuer: "https://idp.example.com"

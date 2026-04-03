@@ -1,0 +1,42 @@
+---
+# =============================================================================
+# Posit Team — Shared Configuration
+# =============================================================================
+#
+# This file controls which products are deployed and shared settings that
+# flow between them. Edit this file first, then customize per-product
+# files in group_vars/ as needed.
+
+# --- Product Toggles ---------------------------------------------------------
+# Set to true to deploy each product. Hosts must be in the matching
+# inventory group (connect, workbench, package_manager).
+
+posit_deploy_package_manager: true
+posit_deploy_connect: true
+posit_deploy_workbench: true
+
+# --- R and Python Versions ---------------------------------------------------
+# Installed on all product hosts via posit.tools. Shared here so every
+# product sees the same runtimes.
+
+r_versions:
+  - "4.4.3"
+  - "4.3.3"
+
+python_versions:
+  - "3.12.7"
+  - "3.11.10"
+
+quarto_versions:
+  - "1.6.39"
+
+# --- Package Manager Integration ---------------------------------------------
+# When PPM is deployed, Connect and Workbench are automatically configured
+# to use it. Set the URL admins/users will reach PPM at.
+
+posit_package_manager_url: "http://{{ hostvars[groups['package_manager'][0]]['ansible_host'] | default('localhost') }}:4242"
+
+# --- Shared Paths ------------------------------------------------------------
+# License files on the Ansible controller. Override per-product in group_vars.
+
+posit_license_dir: "./licenses"

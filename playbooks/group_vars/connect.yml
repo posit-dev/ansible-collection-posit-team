@@ -1,0 +1,47 @@
+---
+# =============================================================================
+# Posit Connect — Group Variables
+# =============================================================================
+
+connect_license_file: "{{ posit_license_dir }}/connect.lic"
+
+# Server address visible to users.
+# Override if behind a load balancer or reverse proxy.
+connect_server_address: "http://{{ ansible_host }}:3939"
+
+# --- PPM Integration (auto-configured when PPM is deployed) ---
+# Connect uses PPM as its R package repository. This is set automatically
+# from posit_package_manager_url in all.yml when posit_deploy_package_manager
+# is true. Override here to point at a different PPM instance.
+connect_custom_config: "{{
+  {
+    'RPackageRepository \"CRAN\"': {
+      'URL': posit_package_manager_url + '/cran/latest'
+    },
+    'RPackageRepository \"PPM\"': {
+      'URL': posit_package_manager_url + '/all/latest'
+    }
+  } if posit_deploy_package_manager else {}
+}}"
+
+# --- Uncomment to enable features ---
+# connect_https_enabled: true
+# connect_https_cert: /etc/ssl/certs/connect.crt
+# connect_https_key: /etc/ssl/private/connect.key
+
+# connect_auth_provider: "ldap"
+# connect_ldap_server_address: "ldap://ldap.example.com:389"
+# connect_ldap_bind_dn: "cn=admin,dc=example,dc=com"
+# connect_ldap_bind_password: "{{ vault_connect_ldap_password }}"
+# connect_ldap_user_search_base_dn: "ou=users,dc=example,dc=com"
+
+# connect_db_provider: "postgresql"
+# connect_db_postgres_url: "postgres://connect:secret@db.example.com:5432/connect"
+
+# connect_email_provider: "smtp"
+# connect_smtp_host: "smtp.example.com"
+# connect_smtp_from: "connect@example.com"
+
+# connect_prometheus_enabled: true
+
+# connect_launcher_enabled: true

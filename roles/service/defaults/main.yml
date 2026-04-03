@@ -1,0 +1,17 @@
+---
+# --- Service Management ---
+
+# systemd service name. e.g., "rstudio-connect"
+service_name: ""
+
+# Desired state: "started" or "restarted"
+service_state: "started"
+
+# Enable service to start on boot.
+service_enabled: true
+
+# Port to check after start. Set to 0 to skip the health check.
+service_health_port: 0
+
+# Seconds to wait for the port to become available.
+service_health_timeout: 60

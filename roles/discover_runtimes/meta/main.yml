@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  role_name: discover_runtimes
+  author: "Posit Software, PBC"
+  namespace: posit
+  description: "Auto-discover R, Python, and Quarto installations for Posit products"
+  license: MIT
+  min_ansible_version: "2.14"
+
+dependencies: []

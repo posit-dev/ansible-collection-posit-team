@@ -1,0 +1,88 @@
+---
+- name: Find R installations
+  ansible.builtin.find:
+    paths: "{{ discover_r_dir }}"
+    patterns: "R"
+    file_type: any
+    recurse: true
+    depth: 3
+  register: _r_find
+  failed_when: false
+
+- name: Build R executable list
+  ansible.builtin.set_fact:
+    discovered_r_executables: >-
+      {{ _r_find.files
+         | default([])
+         | map(attribute='path')
+         | select('match', '.*/bin/R$')
+         | sort
+         | list }}
+
+- name: Fail if R is required but not found
+  when:
+    - discover_r_required | bool
+    - discovered_r_executables | length == 0
+  ansible.builtin.fail:
+    msg: >-
+      No R installations found in {{ discover_r_dir }}.
+      Install R first with the posit.tools.r role.
+
+- name: Find Python installations
+  ansible.builtin.find:
+    paths: "{{ discover_python_dir }}"
+    patterns: "python*"
+    file_type: any
+    recurse: true
+    depth: 3
+  register: _python_find
+  failed_when: false
+
+- name: Build Python executable list
+  ansible.builtin.set_fact:
+    discovered_python_executables: >-
+      {{ _python_find.files
+         | default([])
+         | map(attribute='path')
+         | select('match', '.*/bin/python[0-9.]*$')
+         | reject('match', '.*-config$')
+         | sort
+         | list }}
+
+- name: Fail if Python is required but not found
+  when:
+    - discover_python_required | bool
+    - discovered_python_executables | length == 0
+  ansible.builtin.fail:
+    msg: >-
+      No Python installations found in {{ discover_python_dir }}.
+      Install Python first with the posit.tools.python role.
+
+- name: Find Quarto installations
+  ansible.builtin.find:
+    paths: "{{ discover_quarto_dir }}"
+    patterns: "quarto"
+    file_type: any
+    recurse: true
+    depth: 3
+  register: _quarto_find
+  failed_when: false
+
+- name: Build Quarto executable list
+  ansible.builtin.set_fact:
+    discovered_quarto_executables: >-
+      {{ _quarto_find.files
+         | default([])
+         | map(attribute='path')
+         | select('match', '.*/bin/quarto$')
+         | sort
+         | list }}
+
+- name: Report discovered runtimes
+  ansible.builtin.debug:
+    msg:
+      r: "{{ discovered_r_executables }}"
+      python: "{{ discovered_python_executables }}"
+      quarto: "{{ discovered_quarto_executables }}"
+  tags:
+    - discover-runtimes-report

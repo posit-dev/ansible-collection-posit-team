@@ -1,0 +1,14 @@
+---
+# --- Runtime Discovery ---
+
+# Directories to scan for installed runtimes.
+discover_r_dir: "/opt/R"
+discover_python_dir: "/opt/python"
+discover_quarto_dir: "/opt/quarto"
+
+# Fail if no R installations are found.
+# Set to true for products that require R (Connect, Workbench).
+discover_r_required: false
+
+# Fail if no Python installations are found.
+discover_python_required: false

@@ -1,0 +1,14 @@
+---
+- name: Validate install_package_name is set
+  ansible.builtin.assert:
+    that:
+      - install_package_name | length > 0
+    fail_msg: "install_package_name must be set (e.g., 'rstudio-connect')"
+
+- name: Install via Cloudsmith
+  when: install_source == "cloudsmith"
+  ansible.builtin.include_tasks: install_cloudsmith.yml
+
+- name: Install via CDN
+  when: install_source == "cdn"
+  ansible.builtin.include_tasks: install_cdn.yml

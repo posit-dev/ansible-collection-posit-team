@@ -1,0 +1,31 @@
+---
+galaxy_info:
+  role_name: install
+  author: "Posit Software, PBC"
+  namespace: posit
+  description: "Install Posit product packages via Cloudsmith or CDN"
+  license: MIT
+  min_ansible_version: "2.14"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bookworm
+        - trixie
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+        - "10"
+    - name: Fedora
+      versions:
+        - "43"
+    - name: SLES
+      versions:
+        - "15SP6"
+
+dependencies: []

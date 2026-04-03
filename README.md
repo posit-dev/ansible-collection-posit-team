@@ -1,32 +1,38 @@
-# Ansible Collection - posit.posit_team
+# Ansible Collection - posit.team
 
-Ansible collection for installing and configuring Posit Team products.
+Common utility roles for installing and configuring Posit Team products.
+Used by the product-specific roles:
+
+- [ansible-role-connect](https://github.com/posit-dev/ansible-role-connect)
+- [ansible-role-workbench](https://github.com/posit-dev/ansible-role-workbench)
+- [ansible-role-package-manager](https://github.com/posit-dev/ansible-role-package-manager)
 
 ## Included Roles
 
 | Role | Description |
 |------|-------------|
-| `posit.posit_team.posit_connect` | Install and configure [Posit Connect](https://posit.co/products/enterprise/connect/) |
-| `posit.posit_team.posit_workbench` | Install and configure [Posit Workbench](https://posit.co/products/enterprise/workbench/) |
-| `posit.posit_team.posit_package_manager` | Install and configure [Posit Package Manager](https://posit.co/products/enterprise/package-manager/) |
-| `posit.posit_team.r` | Install R versions using [Posit r-builds](https://github.com/rstudio/r-builds) |
-| `posit.posit_team.python` | Install Python versions using [uv](https://docs.astral.sh/uv/) |
+| `posit.team.install` | Install Posit product packages via Cloudsmith or CDN |
+| `posit.team.license` | Activate product licenses via file or key |
+| `posit.team.service` | Manage product systemd services with health checks |
+| `posit.team.discover_runtimes` | Auto-discover R, Python, and Quarto installations |
+
+## Dependencies
+
+This collection depends on [`posit.tools`](https://github.com/posit-dev/ansible-collection-tools)
+for Cloudsmith repository setup and CDN download functionality.
 
 ## Supported Operating Systems
 
-- Red Hat Enterprise Linux 8, 9, 10
-- SUSE Linux Enterprise Server 15 SP6, SP7 / openSUSE 15.6
-- Ubuntu 22.04 (Jammy Jellyfish), 24.04 (Noble Numbat)
+- Ubuntu 22.04 (Jammy), 24.04 (Noble)
 - Debian 12 (Bookworm), 13 (Trixie)
-
-## Requirements
-
-- Ansible >= 2.15.0
+- Red Hat Enterprise Linux 8, 9, 10
+- Fedora 43
+- SUSE Linux Enterprise Server 15 SP6 / openSUSE Leap 15.6
 
 ## Installation
 
 ```bash
-ansible-galaxy collection install posit.posit_team
+ansible-galaxy collection install posit.team
 ```
 
 ## License

@@ -1,0 +1,55 @@
+---
+# Install a Posit product package from cdn.posit.co.
+# Uses the posit.tools.download_from_posit_cdn module for OS auto-detection
+# and checksum verification.
+
+- name: Validate version is set for CDN install
+  ansible.builtin.assert:
+    that:
+      - install_version | length > 0
+    fail_msg: "install_version is required when install_source is 'cdn'"
+
+- name: Validate CDN product name is set
+  ansible.builtin.assert:
+    that:
+      - install_cdn_product | length > 0
+    fail_msg: "install_cdn_product must be set (e.g., 'connect', 'rstudio', 'rspm')"
+
+- name: Download product from CDN
+  posit.tools.download_from_posit_cdn:
+    product: "{{ install_cdn_product }}"
+    version: "{{ install_version }}"
+    edition: "pro"
+    dest: "/tmp"
+  register: _cdn_download
+
+- name: Install downloaded package (Debian)
+  when: ansible_facts['os_family'] == 'Debian'
+  become: true
+  ansible.builtin.apt:
+    deb: "{{ _cdn_download.path }}"
+    state: present
+    allow_downgrade: true
+    force_apt_get: true
+
+- name: Install downloaded package (RedHat)
+  when: ansible_facts['os_family'] == 'RedHat'
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ _cdn_download.path }}"
+    state: present
+    allow_downgrade: true
+    disable_gpg_check: true
+
+- name: Install downloaded package (Suse)
+  when: ansible_facts['os_family'] == 'Suse'
+  become: true
+  community.general.zypper:
+    name: "{{ _cdn_download.path }}"
+    state: present
+    disable_gpg_check: true
+
+- name: Clean up downloaded package
+  ansible.builtin.file:
+    path: "{{ _cdn_download.path }}"
+    state: absent

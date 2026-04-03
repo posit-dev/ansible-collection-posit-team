@@ -1,0 +1,33 @@
+---
+- name: Validate service_name is set
+  ansible.builtin.assert:
+    that:
+      - service_name | length > 0
+    fail_msg: "service_name must be set (e.g., 'rstudio-connect')"
+
+- name: Ensure service is {{ service_state }} and enabled
+  ansible.builtin.systemd:
+    name: "{{ service_name }}"
+    state: "{{ service_state }}"
+    enabled: "{{ service_enabled }}"
+    daemon_reload: true
+  become: true
+
+- name: Wait for service health check
+  when: service_health_port | int > 0
+  ansible.builtin.wait_for:
+    port: "{{ service_health_port | int }}"
+    timeout: "{{ service_health_timeout | int }}"
+    state: started
+  register: _service_health
+  failed_when: false
+
+- name: Report service health check failure
+  when:
+    - service_health_port | int > 0
+    - _service_health is failed
+  ansible.builtin.fail:
+    msg: >-
+      Service '{{ service_name }}' did not start listening on port
+      {{ service_health_port }} within {{ service_health_timeout }} seconds.
+      Check the service logs with: journalctl -u {{ service_name }}

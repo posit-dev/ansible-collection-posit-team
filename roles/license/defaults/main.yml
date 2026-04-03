@@ -1,0 +1,23 @@
+---
+# --- License Activation ---
+
+# Path to a .lic license file on the Ansible controller.
+# This is the recommended method (works in air-gapped environments).
+license_file: ""
+
+# License key string for online activation.
+# Used only if license_file is not set.
+license_key: ""
+
+# Path to the product's license-manager binary on the target.
+# e.g., "/opt/rstudio-connect/bin/license-manager"
+license_manager_path: ""
+
+# Destination path for the .lic file on the target.
+# e.g., "/var/lib/rstudio-connect/license.lic"
+license_file_dest: ""
+
+# Owner and group for the license file.
+license_file_owner: "root"
+license_file_group: "root"
+license_file_mode: "0600"

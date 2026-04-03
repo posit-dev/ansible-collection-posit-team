@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  role_name: license
+  author: "Posit Software, PBC"
+  namespace: posit
+  description: "Activate Posit product licenses via file or key"
+  license: MIT
+  min_ansible_version: "2.14"
+
+dependencies: []

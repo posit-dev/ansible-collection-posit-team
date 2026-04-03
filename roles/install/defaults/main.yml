@@ -1,0 +1,18 @@
+---
+# --- Package Installation ---
+
+# Package name in the Cloudsmith/system repo.
+# e.g., "rstudio-connect", "rstudio-server", "rstudio-pm"
+install_package_name: ""
+
+# Product name for CDN downloads.
+# Valid: "connect", "rstudio", "rspm"
+install_cdn_product: ""
+
+# Version to install. Empty string installs latest from Cloudsmith.
+# When set, pins to this version via apt/dnf version constraint.
+# Required when install_source is "cdn".
+install_version: ""
+
+# Installation source: "cloudsmith" or "cdn"
+install_source: "cloudsmith"

@@ -1,12 +1,11 @@
 ---
 namespace: posit
-name: posit_team
+name: team
 version: 0.1.0
 readme: README.md
 
 authors:
   - Posit Software, PBC
-  - Brian Smith <brian@posit.co>
 
 description: >-
   Ansible collection for installing and configuring Posit Team products
@@ -15,7 +14,7 @@ description: >-
 license:
   - MIT
 
-license_file: ''
+license_file: LICENSE
 
 tags:
   - posit
@@ -24,11 +23,12 @@ tags:
   - workbench
   - packagemanager
 
-dependencies: {}
+dependencies:
+  posit.tools: ">=0.2.0"
 
-repository: http://example.com/repository
-documentation: http://docs.example.com
-homepage: http://example.com
-issues: http://example.com/issue/tracker
+repository: https://github.com/posit-dev/ansible-collection-posit-team
+documentation: https://github.com/posit-dev/ansible-collection-posit-team
+homepage: https://github.com/posit-dev/ansible-collection-posit-team
+issues: https://github.com/posit-dev/ansible-collection-posit-team/issues
 
 build_ignore: []

@@ -1,0 +1,39 @@
+---
+- name: Activate license from file
+  when: license_file | length > 0
+  block:
+    - name: Copy license file to target
+      ansible.builtin.copy:
+        src: "{{ license_file }}"
+        dest: "{{ license_file_dest }}"
+        owner: "{{ license_file_owner }}"
+        group: "{{ license_file_group }}"
+        mode: "{{ license_file_mode }}"
+      become: true
+
+- name: Activate license from key
+  when:
+    - license_file | length == 0
+    - license_key | length > 0
+  block:
+    - name: Validate license-manager path is set
+      ansible.builtin.assert:
+        that:
+          - license_manager_path | length > 0
+        fail_msg: "license_manager_path must be set for key-based activation"
+
+    - name: Activate license key
+      ansible.builtin.command:
+        cmd: "{{ license_manager_path }} activate {{ license_key }}"
+      become: true
+      register: _license_activate
+      changed_when: "'Successfully activated' in _license_activate.stdout"
+
+- name: Skip license activation
+  when:
+    - license_file | length == 0
+    - license_key | length == 0
+  ansible.builtin.debug:
+    msg: >-
+      No license_file or license_key provided. Skipping license activation.
+      The product will run in evaluation mode.

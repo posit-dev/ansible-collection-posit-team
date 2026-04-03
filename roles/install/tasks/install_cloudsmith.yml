@@ -1,0 +1,90 @@
+---
+# Install a Posit product package from the Cloudsmith repository.
+# Requires posit.tools.cloudsmith to have configured the repo first.
+
+- name: Ensure Cloudsmith repository is configured
+  ansible.builtin.include_role:
+    name: posit.tools.cloudsmith
+
+- name: Build versioned package spec (Debian)
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+    - install_version | length > 0
+  ansible.builtin.set_fact:
+    _install_package_spec: "{{ install_package_name }}={{ install_version }}*"
+
+- name: Build unversioned package spec (Debian)
+  when:
+    - ansible_facts['os_family'] == 'Debian'
+    - install_version | length == 0
+  ansible.builtin.set_fact:
+    _install_package_spec: "{{ install_package_name }}"
+
+- name: Build versioned package spec (RedHat)
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - install_version | length > 0
+  ansible.builtin.set_fact:
+    _install_package_spec: "{{ install_package_name }}-{{ install_version }}"
+
+- name: Build unversioned package spec (RedHat)
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - install_version | length == 0
+  ansible.builtin.set_fact:
+    _install_package_spec: "{{ install_package_name }}"
+
+- name: Build versioned package spec (Suse)
+  when:
+    - ansible_facts['os_family'] == 'Suse'
+    - install_version | length > 0
+  ansible.builtin.set_fact:
+    _install_package_spec: "{{ install_package_name }}={{ install_version }}"
+
+- name: Build unversioned package spec (Suse)
+  when:
+    - ansible_facts['os_family'] == 'Suse'
+    - install_version | length == 0
+  ansible.builtin.set_fact:
+    _install_package_spec: "{{ install_package_name }}"
+
+- name: Install package (Debian)
+  when: ansible_facts['os_family'] == 'Debian'
+  become: true
+  ansible.builtin.apt:
+    name: "{{ _install_package_spec }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+    allow_downgrade: true
+    force_apt_get: true
+  register: _install_apt_result
+  retries: 3
+  delay: 10
+  until: _install_apt_result is success
+
+- name: Install package (RedHat)
+  when: ansible_facts['os_family'] == 'RedHat'
+  become: true
+  ansible.builtin.dnf:
+    name: "{{ _install_package_spec }}"
+    state: present
+    update_cache: true
+    allow_downgrade: true
+  register: _install_dnf_result
+  retries: 3
+  delay: 10
+  until: _install_dnf_result is success
+
+- name: Install package (Suse)
+  when: ansible_facts['os_family'] == 'Suse'
+  become: true
+  community.general.zypper:
+    name: "{{ _install_package_spec }}"
+    state: present
+    update_cache: true
+    disable_gpg_check: true
+  register: _install_zypper_result
+  retries: 3
+  delay: 10
+  until: _install_zypper_result is success

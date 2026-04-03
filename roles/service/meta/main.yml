@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  role_name: service
+  author: "Posit Software, PBC"
+  namespace: posit
+  description: "Manage Posit product systemd services with health checks"
+  license: MIT
+  min_ansible_version: "2.14"
+
+dependencies: []

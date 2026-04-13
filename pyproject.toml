@@ -1,0 +1,10 @@
+[project]
+name = "ansible-collection-posit-team"
+version = "0.1.0"
+description = "Ansible collection for installing and configuring Posit Team products (Posit Connect, Posit Workbench, and Posit Package Manager)"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "ansible-core>=2.20.4",
+    "ansible-lint>=26.3.0",
+]

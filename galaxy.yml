@@ -12,10 +12,7 @@ description: >-
   Ansible collection for installing and configuring Posit Team products
   (Posit Connect, Posit Workbench, and Posit Package Manager).
 
-license:
-  - MIT
-
-license_file: ''
+license_file: 'LICENSE'
 
 tags:
   - posit
@@ -26,9 +23,7 @@ tags:
 
 dependencies: {}
 
-repository: http://example.com/repository
-documentation: http://docs.example.com
-homepage: http://example.com
-issues: http://example.com/issue/tracker
+repository: https://github.com/posit-dev/ansible-collection-posit-team
+issues: https://github.com/posit-dev/ansible-collection-posit-team/issues
 
 build_ignore: []

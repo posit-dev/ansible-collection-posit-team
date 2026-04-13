@@ -46,6 +46,14 @@ collection build` directly.
 
 Use GitHub Issues in the repo (posit-dev/ansible-collection-posit-team) to track the state of current work and capture future work items. When starting new work or discovering tasks that need to be done, create or update issues accordingly.
 
+## Branching and PR Workflow
+
+- Always create a feature branch for new work — never commit directly to `main`.
+- Branch names should be kebab-cased and prefixed with the GitHub issue number when one exists, e.g., `2-role-r` or `3-role-python`.
+- Keep each branch focused on a single issue or closely related set of changes.
+- Submit work via pull request and link the PR to its corresponding issue.
+- Do not merge your own PR without review when other engineers are collaborating.
+
 ## Common Commands
 
 ```bash

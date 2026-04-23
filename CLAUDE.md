@@ -46,6 +46,23 @@ collection build` directly.
 
 Use GitHub Issues in the repo (posit-dev/ansible-collection-posit-team) to track the state of current work and capture future work items. When starting new work or discovering tasks that need to be done, create or update issues accordingly.
 
+## Commit Messages
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) syntax for all commit messages:
+
+```
+<type>(<scope>): <description>
+
+[optional body]
+```
+
+Common types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `ci`
+
+Examples:
+- `feat(role/r): add Linux alternatives for version management`
+- `fix(role/r): correct changed_when on CRB repo tasks`
+- `chore: add molecule and molecule-plugins dependencies`
+
 ## Branching and PR Workflow
 
 - Always create a feature branch for new work — never commit directly to `main`.
@@ -56,22 +73,33 @@ Use GitHub Issues in the repo (posit-dev/ansible-collection-posit-team) to track
 
 ## Common Commands
 
+Use `just` as the task runner. All underlying commands use `uv run --` to ensure the correct Python environment.
+
 ```bash
-# Build the collection
-ansible-galaxy collection build
+# Install all dependencies (Python + Ansible collections)
+just deps
 
-# Install the collection locally for testing
-ansible-galaxy collection install posit-posit_team-*.tar.gz --force
+# Install only Python dependencies
+just deps-py
 
-# Run sanity tests
-ansible-test sanity --docker
+# Install only Ansible collection dependencies
+just deps-ansible
 
-# Run unit tests
-ansible-test units --docker
+# Lint all ansible code
+just check
 
-# Run integration tests
-ansible-test integration --docker
+# Run molecule tests for all roles
+just test
 
-# Run a single integration test target
-ansible-test integration <target_name> --docker
+# Run molecule tests for a single role
+just test r
+
+# Run molecule tests for a single role on a specific platform
+just test r ubuntu2204
+
+# Build the collection artifact
+just build
+
+# Remove built collection artifacts
+just clean
 ```

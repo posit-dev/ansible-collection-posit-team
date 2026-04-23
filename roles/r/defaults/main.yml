@@ -1,0 +1,14 @@
+---
+# List of R versions to install (e.g., ["4.3.2", "4.4.0"])
+r_versions: []
+
+# Version to set as default via Linux alternatives system.
+# When set, /usr/local/bin/R and /usr/local/bin/Rscript will point to this version.
+# When empty (default), no default symlink is created and existing system R is untouched.
+r_version_default: ""
+
+# Base installation directory (packages install to r_install_dir/{version}/)
+r_install_dir: /opt/R
+
+# Posit r-builds CDN base URL
+r_build_url_base: "https://cdn.posit.co/r"

@@ -1,0 +1,31 @@
+---
+- name: Load OS-specific variables
+  ansible.builtin.include_vars: "{{ lookup('ansible.builtin.first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_facts['os_family'] | lower }}.yml"
+      paths:
+        - vars
+
+- name: Configure RedHat repositories
+  ansible.builtin.include_tasks: configure_redhat.yml
+  when:
+    - ansible_facts['os_family'] == 'RedHat'
+    - r_versions | length > 0
+
+- name: Install R versions
+  ansible.builtin.include_tasks: "install_{{ ansible_facts['os_family'] | lower }}.yml"
+  loop: "{{ r_versions }}"
+  loop_control:
+    loop_var: _r_version
+
+- name: Set default R version
+  ansible.builtin.include_tasks: set_default.yml
+  when: r_version_default | length > 0
+
+- name: Verify R installations
+  ansible.builtin.command:
+    cmd: "{{ r_install_dir }}/{{ item }}/bin/R --version"
+  loop: "{{ r_versions }}"
+  changed_when: false

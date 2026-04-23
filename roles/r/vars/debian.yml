@@ -1,0 +1,21 @@
+---
+# Debian/Ubuntu specific variables for R installation
+
+# Architecture mapping for download URLs
+_r_arch: "{{ 'arm64' if ansible_facts['architecture'] == 'aarch64' else 'amd64' }}"
+
+# OS identifier used in Posit CDN URLs
+# Ubuntu: ubuntu-2204, ubuntu-2404
+# Debian: debian-12, debian-13
+_r_os_identifier: >-
+  {{
+    'ubuntu-' ~ ansible_facts['distribution_version'] | replace('.', '')
+    if ansible_facts['distribution'] == 'Ubuntu'
+    else 'debian-' ~ ansible_facts['distribution_major_version']
+  }}
+
+# Package file name pattern (e.g., r-4.4.0_1_amd64.deb)
+_r_pkg_pattern: "r-{{ _r_version }}_1_{{ _r_arch }}.deb"
+
+# Download URL pattern
+_r_url_pattern: "{{ r_build_url_base }}/{{ _r_os_identifier }}/pkgs/r-{{ _r_version }}_1_{{ _r_arch }}.deb"

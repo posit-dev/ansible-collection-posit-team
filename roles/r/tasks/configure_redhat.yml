@@ -1,0 +1,41 @@
+---
+- name: Install dnf-plugins-core
+  ansible.builtin.dnf:
+    name: dnf-plugins-core
+    state: present
+
+- name: Install EPEL repository
+  ansible.builtin.dnf:
+    name: epel-release
+    state: present
+  when: ansible_facts['distribution'] in ['Rocky', 'AlmaLinux', 'CentOS']
+
+- name: Check if powertools repo is enabled (RHEL 8)
+  ansible.builtin.command:
+    cmd: dnf repolist enabled
+  register: r_repolist_rhel8
+  changed_when: false
+  when: ansible_facts['distribution_major_version'] | int == 8
+
+- name: Enable CRB repository (RHEL 8)
+  ansible.builtin.command:
+    cmd: dnf config-manager --set-enabled powertools
+  changed_when: true
+  when:
+    - ansible_facts['distribution_major_version'] | int == 8
+    - "'powertools' not in r_repolist_rhel8.stdout"
+
+- name: Check if CRB repo is enabled (RHEL 9+)
+  ansible.builtin.command:
+    cmd: dnf repolist enabled
+  register: r_repolist_rhel9
+  changed_when: false
+  when: ansible_facts['distribution_major_version'] | int >= 9
+
+- name: Enable CRB repository (RHEL 9+)
+  ansible.builtin.command:
+    cmd: dnf config-manager --set-enabled crb
+  changed_when: true
+  when:
+    - ansible_facts['distribution_major_version'] | int >= 9
+    - "'crb' not in r_repolist_rhel9.stdout"

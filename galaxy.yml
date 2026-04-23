@@ -20,8 +20,12 @@ tags:
   - connect
   - workbench
   - packagemanager
+  - linux
+  - application
+  - infrastructure
 
-dependencies: {}
+dependencies:
+  community.general: ">=7.1.0"
 
 repository: https://github.com/posit-dev/ansible-collection-posit-team
 issues: https://github.com/posit-dev/ansible-collection-posit-team/issues

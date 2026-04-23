@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  roles:
+    - role: posit.posit_team.r
+      vars:
+        r_versions:
+          - "4.4.0"
+        r_version_default: "4.4.0"

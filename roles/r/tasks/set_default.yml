@@ -1,0 +1,14 @@
+---
+- name: Set default R to {{ r_version_default }}
+  community.general.alternatives:
+    name: local-R
+    path: "{{ r_install_dir }}/{{ r_version_default }}/bin/R"
+    link: /usr/local/bin/R
+    state: selected
+
+- name: Set default Rscript to {{ r_version_default }}
+  community.general.alternatives:
+    name: local-Rscript
+    path: "{{ r_install_dir }}/{{ r_version_default }}/bin/Rscript"
+    link: /usr/local/bin/Rscript
+    state: selected

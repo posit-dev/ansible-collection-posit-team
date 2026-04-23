@@ -25,9 +25,64 @@ Ansible collection for installing and configuring Posit Team products.
 
 ## Installation
 
+This collection is not yet published to Ansible Galaxy. Install directly from GitHub:
+
 ```bash
-ansible-galaxy collection install posit.posit_team
+ansible-galaxy collection install git+https://github.com/posit-dev/ansible-collection-posit-team.git
 ```
+
+To pin to a specific branch or tag:
+
+```bash
+ansible-galaxy collection install git+https://github.com/posit-dev/ansible-collection-posit-team.git,main
+```
+
+Or via a `requirements.yml`:
+
+```yaml
+collections:
+  - source: https://github.com/posit-dev/ansible-collection-posit-team.git
+    type: git
+    version: main
+```
+
+## Development
+
+This project uses [`just`](https://just.systems) as a task runner and [`uv`](https://docs.astral.sh/uv/) to manage Python dependencies.
+
+```bash
+# Install all dependencies (Python + Ansible collections)
+just deps
+
+# Install only Python dependencies
+just deps-py
+
+# Install only Ansible collection dependencies
+just deps-ansible
+
+# Lint all ansible code
+just check
+
+# Run molecule tests for all roles
+just test
+
+# Run molecule tests for a single role
+just test r
+
+# Run molecule tests for a single role on a specific platform
+just test r ubuntu2204
+
+# Build the collection artifact
+just build
+
+# Remove built collection artifacts
+just clean
+```
+
+## References
+
+- [Project Board](https://github.com/orgs/posit-dev/projects/46)
+- [Issues](https://github.com/posit-dev/ansible-collection-posit-team/issues)
 
 ## License
 

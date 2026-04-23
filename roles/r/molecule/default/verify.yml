@@ -1,0 +1,51 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  vars:
+    r_install_dir: /opt/R
+    r_versions:
+      - "4.4.0"
+    r_version_default: "4.4.0"
+
+  tasks:
+    - name: Check R binary exists — {{ item }}
+      ansible.builtin.stat:
+        path: "{{ r_install_dir }}/{{ item }}/bin/R"
+      register: r_binary
+      failed_when: not r_binary.stat.exists
+      loop: "{{ r_versions }}"
+
+    - name: Check R runs successfully — {{ item }}
+      ansible.builtin.command:
+        cmd: "{{ r_install_dir }}/{{ item }}/bin/R --version"
+      changed_when: false
+      loop: "{{ r_versions }}"
+
+    - name: Check default R symlink exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/R
+        follow: false
+      register: r_symlink
+      failed_when: not r_symlink.stat.exists or not r_symlink.stat.islnk
+
+    - name: Check default R resolves to correct version
+      ansible.builtin.command:
+        cmd: readlink -f /usr/local/bin/R
+      register: r_symlink_target
+      changed_when: false
+      failed_when: r_symlink_target.stdout != r_install_dir ~ '/' ~ r_version_default ~ '/bin/R'
+
+    - name: Check default Rscript symlink exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/Rscript
+        follow: false
+      register: r_rscript_symlink
+      failed_when: not r_rscript_symlink.stat.exists or not r_rscript_symlink.stat.islnk
+
+    - name: Check default Rscript resolves to correct version
+      ansible.builtin.command:
+        cmd: readlink -f /usr/local/bin/Rscript
+      register: r_rscript_symlink_target
+      changed_when: false
+      failed_when: r_rscript_symlink_target.stdout != r_install_dir ~ '/' ~ r_version_default ~ '/bin/Rscript'

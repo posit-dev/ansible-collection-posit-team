@@ -1,0 +1,15 @@
+---
+# SLES/openSUSE specific variables for R installation
+
+# Architecture mapping for download URLs
+_r_arch: "{{ ansible_facts['architecture'] }}"
+
+# OS identifier used in Posit CDN URLs
+# Uses opensuse-15X format (e.g., opensuse-156 for 15.6, opensuse-157 for 15.7)
+_r_os_identifier: "opensuse-{{ ansible_facts['distribution_version'] | replace('.', '') }}"
+
+# Package file name pattern (e.g., R-4.4.0-1-1.x86_64.rpm)
+_r_pkg_pattern: "R-{{ _r_version }}-1-1.{{ _r_arch }}.rpm"
+
+# Download URL pattern
+_r_url_pattern: "{{ r_build_url_base }}/{{ _r_os_identifier }}/pkgs/R-{{ _r_version }}-1-1.{{ _r_arch }}.rpm"

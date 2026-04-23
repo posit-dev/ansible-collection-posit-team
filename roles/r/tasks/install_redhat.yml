@@ -1,0 +1,41 @@
+---
+- name: Check if R is already installed — {{ _r_version }}
+  ansible.builtin.stat:
+    path: "{{ r_install_dir }}/{{ _r_version }}/bin/R"
+  register: _r_binary
+
+- name: Install R — {{ _r_version }}
+  when: not _r_binary.stat.exists
+  block:
+    - name: Download R package — {{ _r_version }}
+      ansible.builtin.get_url:
+        url: "{{ _r_url_pattern }}"
+        dest: "/tmp/{{ _r_pkg_pattern }}"
+        mode: "0644"
+
+    - name: Install R package — {{ _r_version }}
+      ansible.builtin.dnf:
+        name: "/tmp/{{ _r_pkg_pattern }}"
+        state: present
+        disable_gpg_check: true
+
+    - name: Remove R package file — {{ _r_version }}
+      ansible.builtin.file:
+        path: "/tmp/{{ _r_pkg_pattern }}"
+        state: absent
+
+- name: Register R with alternatives system — {{ _r_version }}
+  community.general.alternatives:
+    name: local-R
+    path: "{{ r_install_dir }}/{{ _r_version }}/bin/R"
+    link: /usr/local/bin/R
+    priority: 1
+    state: present
+
+- name: Register Rscript with alternatives system — {{ _r_version }}
+  community.general.alternatives:
+    name: local-Rscript
+    path: "{{ r_install_dir }}/{{ _r_version }}/bin/Rscript"
+    link: /usr/local/bin/Rscript
+    priority: 1
+    state: present

@@ -1,0 +1,21 @@
+---
+# RHEL/Rocky/Alma specific variables for R installation
+
+# Architecture mapping for download URLs
+_r_arch: "{{ ansible_facts['architecture'] }}"
+
+# OS identifier used in Posit CDN URLs
+# RHEL 8 (and derivatives): centos-8
+# RHEL 9+: rhel-{major_version}
+_r_os_identifier: >-
+  {{
+    'centos-8'
+    if ansible_facts['distribution_major_version'] == '8'
+    else 'rhel-' ~ ansible_facts['distribution_major_version']
+  }}
+
+# Package file name pattern (e.g., R-4.4.0-1-1.x86_64.rpm)
+_r_pkg_pattern: "R-{{ _r_version }}-1-1.{{ _r_arch }}.rpm"
+
+# Download URL pattern
+_r_url_pattern: "{{ r_build_url_base }}/{{ _r_os_identifier }}/pkgs/R-{{ _r_version }}-1-1.{{ _r_arch }}.rpm"

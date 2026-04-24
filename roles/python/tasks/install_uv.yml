@@ -1,0 +1,55 @@
+---
+- name: Check if uv is installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/uv
+  register: python_uv_binary
+
+- name: Install uv
+  when: not python_uv_binary.stat.exists
+  block:
+    - name: Get latest uv release version
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/astral-sh/uv/releases/latest
+        return_content: true
+      register: python_uv_latest
+      when: python_uv_version == "latest"
+
+    - name: Set uv version to install
+      ansible.builtin.set_fact:
+        python_uv_install_version: >-
+          {{
+            python_uv_latest.json.tag_name
+            if (python_uv_version == 'latest' and python_uv_latest is defined)
+            else python_uv_version
+          }}
+
+    - name: Set uv architecture
+      ansible.builtin.set_fact:
+        python_uv_arch: "{{ 'aarch64' if ansible_facts['architecture'] == 'aarch64' else 'x86_64' }}"
+
+    - name: Download uv archive
+      ansible.builtin.get_url:
+        url: "https://github.com/astral-sh/uv/releases/download/{{ python_uv_install_version }}/uv-{{ python_uv_arch }}-unknown-linux-musl.tar.gz"
+        dest: "/tmp/uv-{{ python_uv_install_version }}-{{ python_uv_arch }}.tar.gz"
+        mode: "0644"
+
+    - name: Extract uv archive
+      ansible.builtin.unarchive:
+        src: "/tmp/uv-{{ python_uv_install_version }}-{{ python_uv_arch }}.tar.gz"
+        dest: /tmp
+        remote_src: true
+
+    - name: Install uv binary
+      ansible.builtin.copy:
+        src: "/tmp/uv-{{ python_uv_arch }}-unknown-linux-musl/uv"
+        dest: /usr/local/bin/uv
+        mode: "0755"
+        remote_src: true
+
+    - name: Remove uv temp files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "/tmp/uv-{{ python_uv_install_version }}-{{ python_uv_arch }}.tar.gz"
+        - "/tmp/uv-{{ python_uv_arch }}-unknown-linux-musl"

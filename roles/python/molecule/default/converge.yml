@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  roles:
+    - role: posit.posit_team.python
+      vars:
+        python_versions:
+          - "3.11.9"
+        python_version_default: "3.11.9"

@@ -1,0 +1,55 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  vars:
+    python_install_dir: /opt/python
+    python_versions:
+      - "3.11.9"
+    python_version_default: "3.11.9"
+
+  tasks:
+    - name: Check python3 binary exists
+      ansible.builtin.stat:
+        path: "{{ python_install_dir }}/{{ item }}/bin/python3"
+      register: python_binary
+      failed_when: not python_binary.stat.exists
+      loop: "{{ python_versions }}"
+      loop_control:
+        label: "{{ item }}"
+
+    - name: Check Python runs successfully
+      ansible.builtin.command:
+        cmd: "{{ python_install_dir }}/{{ item }}/bin/python3 --version"
+      changed_when: false
+      loop: "{{ python_versions }}"
+      loop_control:
+        label: "{{ item }}"
+
+    - name: Check default python3 symlink exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/python3
+        follow: false
+      register: python_python3_symlink
+      failed_when: not python_python3_symlink.stat.exists or not python_python3_symlink.stat.islnk
+
+    - name: Check default python3 version matches expected
+      ansible.builtin.command:
+        cmd: /usr/local/bin/python3 --version
+      register: python_python3_version
+      changed_when: false
+      failed_when: python_version_default not in python_python3_version.stdout
+
+    - name: Check default python symlink exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/python
+        follow: false
+      register: python_symlink
+      failed_when: not python_symlink.stat.exists or not python_symlink.stat.islnk
+
+    - name: Check default python version matches expected
+      ansible.builtin.command:
+        cmd: /usr/local/bin/python --version
+      register: python_version_check
+      changed_when: false
+      failed_when: python_version_default not in python_version_check.stdout

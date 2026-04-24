@@ -1,0 +1,13 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install tar and gzip (SUSE)
+      community.general.zypper:
+        name:
+          - tar
+          - gzip
+        state: present
+      when: ansible_facts['os_family'] == 'Suse'

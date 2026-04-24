@@ -1,0 +1,15 @@
+---
+# List of Python versions to install (e.g., ["3.11.9", "3.12.3"])
+python_versions: []
+
+# Version to set as default via Linux alternatives system.
+# When set, /usr/local/bin/python and /usr/local/bin/python3 will point to this version.
+# When empty (default), no default symlink is created and existing system Python is untouched.
+python_version_default: ""
+
+# Base installation directory. Each version is accessible at python_install_dir/{version}/.
+python_install_dir: /opt/python
+
+# uv version to install. Defaults to "latest", which fetches the current release from GitHub.
+# Pin to a specific version (e.g., "0.11.7") for reproducible deployments.
+python_uv_version: "latest"

@@ -1,0 +1,19 @@
+---
+- name: Install uv
+  ansible.builtin.include_tasks: install_uv.yml
+
+- name: Install Python versions
+  ansible.builtin.include_tasks: install_python.yml
+  loop: "{{ python_versions }}"
+  loop_control:
+    loop_var: _python_version
+
+- name: Set default Python version
+  ansible.builtin.include_tasks: set_default.yml
+  when: python_version_default | length > 0
+
+- name: Verify Python installations
+  ansible.builtin.command:
+    cmd: "{{ python_install_dir }}/{{ item }}/bin/python3 --version"
+  loop: "{{ python_versions }}"
+  changed_when: false

@@ -1,0 +1,14 @@
+---
+- name: Set default python3 to {{ python_version_default }}
+  community.general.alternatives:
+    name: local-python3
+    path: "{{ python_install_dir }}/{{ python_version_default }}/bin/python3"
+    link: /usr/local/bin/python3
+    state: selected
+
+- name: Set default python to {{ python_version_default }}
+  community.general.alternatives:
+    name: local-python
+    path: "{{ python_install_dir }}/{{ python_version_default }}/bin/python"
+    link: /usr/local/bin/python
+    state: selected

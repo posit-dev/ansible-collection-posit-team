@@ -1,0 +1,38 @@
+---
+- name: Install Python via uv — {{ _python_version }}
+  ansible.builtin.command:
+    cmd: /usr/local/bin/uv python install {{ _python_version }}
+  environment:
+    UV_PYTHON_INSTALL_DIR: "{{ python_install_dir }}"
+  register: python_uv_install
+  changed_when: "'Installed' in python_uv_install.stderr"
+
+- name: Find installed Python path — {{ _python_version }}
+  ansible.builtin.command:
+    cmd: /usr/local/bin/uv python find {{ _python_version }}
+  environment:
+    UV_PYTHON_INSTALL_DIR: "{{ python_install_dir }}"
+  register: python_uv_path
+  changed_when: false
+
+- name: Create stable version symlink — {{ _python_version }}
+  ansible.builtin.file:
+    src: "{{ python_uv_path.stdout | trim | dirname | dirname }}"
+    dest: "{{ python_install_dir }}/{{ _python_version }}"
+    state: link
+
+- name: Register python3 with alternatives system — {{ _python_version }}
+  community.general.alternatives:
+    name: local-python3
+    path: "{{ python_install_dir }}/{{ _python_version }}/bin/python3"
+    link: /usr/local/bin/python3
+    priority: 1
+    state: present
+
+- name: Register python with alternatives system — {{ _python_version }}
+  community.general.alternatives:
+    name: local-python
+    path: "{{ python_install_dir }}/{{ _python_version }}/bin/python"
+    link: /usr/local/bin/python
+    priority: 1
+    state: present
